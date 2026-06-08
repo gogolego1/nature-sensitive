@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>자연과 나의 감성 연결 — H.E.A.L. 3차시</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+
+:root {
+  --sea-deep: #1a3a4a;
+  --sea-mid:  #2a6a7a;
+  --sea-light:#5a9aaa;
+  --foam:     #e8f4f0;
+  --sand:     #f5f0e4;
+  --sand-dark:#e0d8c4;
+  --ink:      #1a2a1e;
+  --moss:     #3a5a3a;
+  --moss-light:#5a8a5a;
+  --spring:   #4a7a3a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--sand);color:var(--ink);min-height:100vh;}
+
+/* ── 헤더 ── */
+.app-header{background:var(--sea-deep);padding:18px 28px 14px;display:flex;justify-content:space-between;align-items:flex-end;}
+.header-tag{font-size:9px;letter-spacing:3px;color:var(--sea-light);text-transform:uppercase;margin-bottom:4px;}
+.header-title{font-family:'Noto Serif KR',serif;font-size:22px;color:#fff;font-weight:400;}
+.header-sub{font-size:11px;color:#7aaabb;margin-top:3px;}
+.step-indicator{display:flex;gap:6px;align-items:center;}
+.step-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.2);transition:background 0.3s;}
+.step-dot.active{background:var(--sea-light);}
+.step-dot.done{background:rgba(90,154,170,0.5);}
+
+/* ── 탭 ── */
+.steps-nav{background:#132830;display:flex;border-bottom:1px solid rgba(255,255,255,0.08);overflow-x:auto;}
+.step-tab{flex:1;min-width:64px;padding:10px 6px;text-align:center;font-size:9.5px;color:#5a7a88;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;line-height:1.4;white-space:nowrap;}
+.step-tab:hover{color:#8abbc8;}
+.step-tab.active{color:#e8f4f0;border-bottom-color:var(--sea-light);}
+.step-tab .tab-num{display:block;font-size:14px;font-weight:700;color:inherit;margin-bottom:2px;}
+
+/* ── 레이아웃 ── */
+.main{max-width:860px;margin:0 auto;padding:24px 20px 40px;}
+.panel{display:none;} .panel.active{display:block;}
+.section-label{font-size:10px;letter-spacing:2px;color:var(--moss-light);text-transform:uppercase;margin-bottom:6px;font-weight:700;}
+.section-title{font-family:'Noto Serif KR',serif;font-size:18px;color:var(--ink);margin-bottom:6px;font-weight:400;}
+.section-desc{font-size:12px;color:#5a6a5a;line-height:1.7;margin-bottom:20px;}
+
+/* ── 춘사 구절 카드 ── */
+.verse-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px;}
+.verse-card{border:1.5px solid var(--sand-dark);border-radius:10px;padding:14px 16px;background:#fff;cursor:pointer;transition:all 0.2s;position:relative;}
+.verse-card:hover{border-color:var(--spring);background:#f5faf2;}
+.verse-card.selected{border-color:var(--spring);background:#eef5ea;box-shadow:0 0 0 2px rgba(74,122,58,0.15);}
+.verse-num{font-size:9px;color:#9aaa98;margin-bottom:6px;letter-spacing:1px;}
+.verse-ko{font-family:'Noto Serif KR',serif;font-size:13.5px;color:var(--sea-deep);line-height:1.9;margin-bottom:6px;}
+.verse-modern{font-size:10.5px;color:#6a8a6a;line-height:1.6;border-top:1px dashed #c8d8c0;padding-top:6px;margin-top:4px;}
+.verse-check{position:absolute;top:10px;right:12px;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--sand-dark);display:flex;align-items:center;justify-content:center;font-size:11px;transition:all 0.2s;}
+.verse-card.selected .verse-check{background:var(--spring);border-color:var(--spring);color:#fff;}
+
+/* ── 선택된 구절 배너 ── */
+.selected-verse-banner{background:linear-gradient(135deg,#1a3a4a,#2a6a5a);border-radius:10px;padding:14px 18px;margin-bottom:20px;color:#fff;}
+.banner-label{font-size:9px;letter-spacing:2px;color:var(--sea-light);text-transform:uppercase;margin-bottom:6px;}
+.banner-verse{font-family:'Noto Serif KR',serif;font-size:15px;line-height:1.9;}
+.banner-modern{font-size:11px;color:#9ad4c4;margin-top:6px;line-height:1.6;}
+
+/* ── 사진 업로드 ── */
+.photo-upload-area{border:2px dashed var(--sand-dark);border-radius:12px;background:#fff;overflow:hidden;margin-bottom:20px;transition:border-color 0.2s;}
+.photo-upload-area:hover{border-color:var(--moss-light);}
+.photo-upload-area.has-photo{border-style:solid;border-color:var(--moss-light);}
+.photo-zone{min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer;position:relative;overflow:hidden;}
+.photo-zone img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
+.photo-placeholder{text-align:center;z-index:1;pointer-events:none;}
+.photo-placeholder .photo-icon{font-size:36px;display:block;margin-bottom:8px;}
+.photo-placeholder .photo-text{font-size:13px;color:#7a9a7a;font-weight:500;}
+.photo-placeholder .photo-sub{font-size:11px;color:#aabaa8;margin-top:4px;}
+.photo-input{display:none;}
+.photo-retake{position:absolute;bottom:12px;right:12px;z-index:2;padding:6px 12px;background:rgba(0,0,0,0.5);color:#fff;border:none;border-radius:20px;font-size:11px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;}
+
+/* ── 감각 기록 ── */
+.sense-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.sense-card{border:1px solid var(--sand-dark);border-radius:10px;padding:14px;background:#fff;}
+.sense-icon{font-size:22px;margin-bottom:8px;display:block;}
+.sense-title{font-size:11px;font-weight:700;color:var(--sea-deep);margin-bottom:4px;}
+.sense-hint{font-size:9.5px;color:#8a9a88;margin-bottom:10px;line-height:1.5;}
+.sense-textarea{width:100%;border:none;border-bottom:1.5px solid var(--sand-dark);background:transparent;font-size:11px;color:var(--ink);padding:4px 0;outline:none;resize:none;height:60px;font-family:'Noto Sans KR',sans-serif;line-height:1.7;}
+.sense-textarea:focus{border-bottom-color:var(--sea-mid);}
+.sense-textarea::placeholder{color:#ccc;}
+
+/* ── 색 추출 & 선택 ── */
+.color-extract-area{background:#fff;border:1px solid var(--sand-dark);border-radius:10px;padding:16px;margin-bottom:20px;}
+.extracted-strip{display:flex;gap:6px;margin-bottom:16px;}
+.extracted-cell{flex:1;height:52px;border-radius:7px;border:2px solid transparent;cursor:pointer;transition:all 0.2s;position:relative;}
+.extracted-cell:hover{transform:scaleY(1.06);}
+.extracted-cell.chosen{border-color:var(--ink);transform:scaleY(1.1);}
+.extracted-cell.chosen::after{content:'✓';position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);font-size:12px;color:var(--ink);font-weight:700;}
+.color-name-area{margin-top:28px;padding-top:14px;border-top:1px dashed #c8d8c0;}
+.chosen-color-preview{display:flex;align-items:center;gap:14px;margin-bottom:12px;}
+.chosen-swatch{width:44px;height:44px;border-radius:8px;border:1.5px solid rgba(0,0,0,0.1);flex-shrink:0;}
+.chosen-info{flex:1;}
+.chosen-label{font-size:10px;color:#7a9a88;margin-bottom:4px;}
+.chosen-name-input{width:100%;border:none;border-bottom:2px solid var(--moss);font-family:'Noto Serif KR',serif;font-size:15px;color:var(--ink);padding:4px 0;outline:none;background:transparent;}
+.chosen-name-input::placeholder{color:#ccc;font-family:'Noto Sans KR',sans-serif;font-size:12px;}
+.no-photo-msg{text-align:center;padding:20px;font-size:12px;color:#aabaa8;}
+
+/* ── 감성 단어 선택 ── */
+.word-select-area{background:#fff;border:1px solid var(--sand-dark);border-radius:10px;padding:16px;margin-bottom:20px;}
+.word-select-title{font-size:12px;font-weight:700;color:var(--sea-deep);margin-bottom:4px;}
+.word-select-sub{font-size:10px;color:#8a9a88;margin-bottom:12px;}
+.mini-categories{display:flex;flex-direction:column;gap:10px;}
+.mini-cat-title{font-size:9px;letter-spacing:1px;color:var(--moss-light);font-weight:700;text-transform:uppercase;margin-bottom:5px;}
+.mini-chips{display:flex;flex-wrap:wrap;gap:5px;}
+.mini-chip{padding:4px 11px;border-radius:16px;font-size:11px;border:1.5px solid var(--sand-dark);color:#4a6a5a;cursor:pointer;transition:all 0.15s;background:#fff;}
+.mini-chip:hover{border-color:var(--moss-light);background:var(--foam);}
+.mini-chip.selected{background:var(--sea-deep);color:#fff;border-color:var(--sea-deep);}
+.custom-word-row{display:flex;gap:8px;align-items:center;margin-top:10px;padding-top:10px;border-top:1px dashed #c8d8c0;}
+.custom-word-input{flex:1;border:1.5px solid var(--sand-dark);border-radius:16px;padding:5px 13px;font-size:11px;font-family:'Noto Sans KR',sans-serif;outline:none;color:var(--ink);}
+.custom-word-input:focus{border-color:var(--moss-light);}
+.custom-word-btn{padding:5px 13px;border-radius:16px;border:1.5px solid var(--moss);background:transparent;color:var(--moss);font-size:11px;font-weight:500;cursor:pointer;font-family:'Noto Sans KR',sans-serif;white-space:nowrap;}
+.selected-words-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px;min-height:28px;}
+.sel-word-chip{background:var(--sea-deep);color:#fff;border-radius:14px;padding:3px 10px;font-size:11px;display:flex;align-items:center;gap:4px;}
+.sel-word-chip .rm{cursor:pointer;opacity:0.7;font-size:10px;}
+
+/* ── 연결 문장 ── */
+.connect-area{background:#fff;border:1.5px solid var(--moss);border-radius:12px;padding:18px;margin-bottom:20px;}
+.connect-summary{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;margin-bottom:16px;align-items:start;}
+.cs-label{font-size:9.5px;color:var(--moss-light);font-weight:700;white-space:nowrap;padding-top:2px;}
+.cs-value{font-size:12px;color:var(--ink);line-height:1.6;}
+.cs-color-row{display:flex;align-items:center;gap:8px;}
+.cs-swatch{width:20px;height:20px;border-radius:4px;border:1px solid rgba(0,0,0,0.1);flex-shrink:0;}
+.connect-divider{border:none;border-top:1px dashed #c8d8c0;margin:14px 0;}
+.connect-q{font-family:'Noto Serif KR',serif;font-size:14px;color:var(--sea-deep);margin-bottom:4px;}
+.connect-sub{font-size:10px;color:#8a9a88;margin-bottom:10px;line-height:1.6;}
+.connect-example{font-size:10px;color:#7a9a7a;background:#f0f5ee;border-radius:6px;padding:8px 12px;margin-bottom:12px;line-height:1.7;}
+.connect-textarea{width:100%;border:none;border-bottom:2px solid var(--sand-dark);background:transparent;font-family:'Noto Serif KR',serif;font-size:13px;color:var(--ink);padding:6px 0;outline:none;resize:none;height:64px;line-height:1.8;}
+.connect-textarea:focus{border-bottom-color:var(--sea-mid);}
+.connect-textarea::placeholder{color:#ccc;font-family:'Noto Sans KR',sans-serif;font-size:11px;}
+
+/* ── 저장 ── */
+.action-row{display:flex;gap:10px;justify-content:flex-end;margin-top:24px;}
+.btn{padding:10px 20px;border-radius:8px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;font-weight:500;transition:all 0.2s;border:none;}
+.btn-outline{background:transparent;border:1.5px solid var(--sea-mid);color:var(--sea-mid);}
+.btn-outline:hover{background:var(--sea-mid);color:#fff;}
+.btn-primary{background:var(--sea-deep);color:#fff;}
+.btn-primary:hover{background:var(--sea-mid);}
+
+/* ── 네비게이션 ── */
+.nav-btns{display:flex;justify-content:space-between;margin-top:28px;}
+.nav-btn{padding:10px 24px;border-radius:8px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;font-weight:500;transition:all 0.2s;border:none;}
+.nav-btn-prev{background:var(--sand);color:#6a7a68;border:1.5px solid var(--sand-dark);}
+.nav-btn-prev:hover{background:var(--sand-dark);}
+.nav-btn-next{background:var(--sea-deep);color:#fff;}
+.nav-btn-next:hover{background:var(--sea-mid);}
+.nav-btn:disabled{opacity:0.3;cursor:not-allowed;}
+
+/* ── 인쇄/저장 시트 ── */
+@media print{body>*:not(#printSheet){display:none !important;} #printSheet{display:block !important;position:static !important;} body{background:white;margin:0;padding:0;}}
+#printSheet{display:none;font-family:'Noto Sans KR',sans-serif;color:#1a2a1e;width:794px;padding:50px 54px 48px;background:#fff;position:fixed;top:-9999px;left:0;z-index:9999;}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+.next-note{margin-top:12px;padding:11px 14px;background:#e8f0e4;border-radius:8px;font-size:11px;color:#4a6a4a;line-height:1.7;}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div>
+    <div class="header-tag">H.E.A.L. 프로젝트 · 1영역 · 3차시</div>
+    <div class="header-title">자연과 나의 감성 연결</div>
+    <div class="header-sub">E — 색으로 나를 읽다 · 미술 2단원</div>
+  </div>
+  <div class="step-indicator" id="stepDots"></div>
+</div>
+
+<div class="steps-nav">
+  <div class="step-tab active" onclick="goToStep(0)" id="tab0"><span class="tab-num">1</span>구절 고르기</div>
+  <div class="step-tab" onclick="goToStep(1)" id="tab1"><span class="tab-num">2</span>사진 찍기</div>
+  <div class="step-tab" onclick="goToStep(2)" id="tab2"><span class="tab-num">3</span>감각 기록</div>
+  <div class="step-tab" onclick="goToStep(3)" id="tab3"><span class="tab-num">4</span>감정색 찾기</div>
+  <div class="step-tab" onclick="goToStep(4)" id="tab4"><span class="tab-num">5</span>연결하기</div>
+</div>
+
+<div class="main">
+
+<!-- ===== STEP 1: 춘사 구절 고르기 ===== -->
+<div class="panel active" id="panel0">
+  <div class="section-label">Step 1</div>
+  <div class="section-title">오늘 나에게 가장 와닿는 춘사 구절을 하나 골라보세요</div>
+  <div class="section-desc">어부사시사 춘사 10수 중 지금 이 순간 마음에 걸리는 구절이 있나요?<br>억지로 고르지 않아도 좋아요. 그냥 눈에 먼저 들어오는 구절을 선택해 보세요.</div>
+  <div class="verse-grid" id="verseGrid"></div>
+  <div class="nav-btns">
+    <button class="nav-btn nav-btn-prev" disabled>← 이전</button>
+    <button class="nav-btn nav-btn-next" onclick="goToStep(1)" id="nextBtn1">다음: 사진 찍기 →</button>
+  </div>
+</div>
+
+<!-- ===== STEP 2: 사진 찍기 ===== -->
+<div class="panel" id="panel1">
+  <div class="section-label">Step 2</div>
+  <div class="section-title">그 구절과 닮은 완도 봄 바다 장면을 찾아 사진을 찍어보세요</div>
+  <div class="section-desc">교실 밖으로 나가도 좋아요. 지금 이 순간, 내가 고른 구절이 떠오르는 장면이 있나요?<br>완벽한 사진이 아니어도 괜찮아요. 내 눈에 걸린 장면이면 됩니다.</div>
+  <div id="selectedVerseBanner1"></div>
+  <div class="photo-upload-area" id="photoUploadArea">
+    <div class="photo-zone" id="photoZone" style="cursor:default;">
+      <div class="photo-placeholder" id="photoPlaceholder">
+        <span class="photo-icon">📷</span>
+        <span class="photo-text">사진을 찍거나 파일로 올려주세요</span>
+        <span class="photo-sub" style="display:block;margin-top:4px;">갤러리 사진·다운로드 파일 모두 가능해요</span>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:14px;z-index:5;position:relative;">
+        <button onclick="document.getElementById('photoCameraInput').click()"
+          style="padding:9px 20px;border-radius:20px;border:none;background:var(--moss);
+                 color:#fff;font-size:12px;font-weight:500;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">
+          📷 카메라로 찍기
+        </button>
+        <button onclick="document.getElementById('photoFileInput').click()"
+          style="padding:9px 20px;border-radius:20px;border:1.5px solid var(--moss);background:#fff;
+                 color:var(--moss);font-size:12px;font-weight:500;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">
+          🖼 파일에서 올리기
+        </button>
+      </div>
+      <!-- 카메라 전용 -->
+      <input type="file" accept="image/*" capture="environment"
+        style="display:none;" id="photoCameraInput" onchange="handlePhoto(event)">
+      <!-- 파일 업로드 전용 (capture 없음) -->
+      <input type="file" accept="image/*"
+        style="display:none;" id="photoFileInput" onchange="handlePhoto(event)">
+    </div>
+  </div>
+  <div class="nav-btns">
+    <button class="nav-btn nav-btn-prev" onclick="goToStep(0)">← 이전</button>
+    <button class="nav-btn nav-btn-next" onclick="goToStep(2)">다음: 감각 기록 →</button>
+  </div>
+</div>
+
+<!-- ===== STEP 3: 감각 기록 ===== -->
+<div class="panel" id="panel2">
+  <div class="section-label">Step 3</div>
+  <div class="section-title">이 장면에서 무엇이 느껴지나요?</div>
+  <div class="section-desc">사진을 찍던 그 순간을 떠올리며, 감각 하나하나를 천천히 기록해보세요.<br>단어 하나도 충분해요. 문장이 아니어도 됩니다.</div>
+  <div id="selectedVerseBanner2"></div>
+  <div id="photoThumb2" style="margin-bottom:16px;"></div>
+  <div class="sense-grid">
+    <div class="sense-card">
+      <span class="sense-icon">👁️</span>
+      <div class="sense-title">보이는 것</div>
+      <div class="sense-hint">색, 형태, 움직임, 빛...<br>눈에 들어온 것을 써보세요</div>
+      <textarea class="sense-textarea" id="senseVision" placeholder="예: 안개, 은빛 물결, 파란 하늘..."></textarea>
+    </div>
+    <div class="sense-card">
+      <span class="sense-icon">👂</span>
+      <div class="sense-title">들리는 것</div>
+      <div class="sense-hint">파도 소리, 바람 소리, 새소리...<br>귀에 닿은 것을 써보세요</div>
+      <textarea class="sense-textarea" id="senseSound" placeholder="예: 파도 소리, 갈매기 울음..."></textarea>
+    </div>
+    <div class="sense-card">
+      <span class="sense-icon">🫧</span>
+      <div class="sense-title">느껴지는 것</div>
+      <div class="sense-hint">바람, 온도, 냄새, 피부에 닿는 것...<br>몸으로 느낀 것을 써보세요</div>
+      <textarea class="sense-textarea" id="senseFeel" placeholder="예: 바람이 차갑고, 비린 냄새..."></textarea>
+    </div>
+  </div>
+  <div class="nav-btns">
+    <button class="nav-btn nav-btn-prev" onclick="goToStep(1)">← 이전</button>
+    <button class="nav-btn nav-btn-next" onclick="goToStep(3)">다음: 감정색 찾기 →</button>
+  </div>
+</div>
+
+<!-- ===== STEP 4: 감정색 찾기 ===== -->
+<div class="panel" id="panel3">
+  <div class="section-label">Step 4</div>
+  <div class="section-title">사진에서 나의 감정색을 찾아보세요</div>
+  <div class="section-desc">내 사진에서 추출된 색 중에서 <strong>지금 내 마음과 가장 닮은 색 하나</strong>를 골라보세요.<br>가장 예쁜 색이 아니라, 가장 나다운 색이어야 해요.</div>
+  <div class="color-extract-area" id="colorExtractArea">
+    <div id="noPhotoMsg" class="no-photo-msg" style="display:none;">
+      📷 2단계에서 사진을 올리면 색이 자동으로 추출돼요.
+    </div>
+    <div id="extractedColors"></div>
+  </div>
+  <div class="nav-btns">
+    <button class="nav-btn nav-btn-prev" onclick="goToStep(2)">← 이전</button>
+    <button class="nav-btn nav-btn-next" onclick="goToStep(4)">다음: 연결하기 →</button>
+  </div>
+</div>
+
+<!-- ===== STEP 5: 연결하기 ===== -->
+<div class="panel" id="panel4">
+  <div class="section-label">Step 5</div>
+  <div class="section-title">감각 · 색 · 감성을 하나로 연결해보세요</div>
+  <div class="section-desc">지금까지 기록한 것들을 모아서 나만의 한 문장으로 표현해봐요.</div>
+
+  <div class="connect-area">
+    <!-- 요약 -->
+    <div class="connect-summary" id="connectSummary"></div>
+    <hr class="connect-divider">
+
+    <!-- 감성 단어 선택 -->
+    <div class="word-select-area" style="border:none;padding:0;margin-bottom:16px;">
+      <div class="word-select-title">이 모든 것이 나에게 주는 감성은?</div>
+      <div class="word-select-sub">아래에서 골라도 좋고, 직접 입력해도 좋아요 (최대 3개)</div>
+      <div class="mini-categories" id="miniCategories"></div>
+      <div class="custom-word-row">
+        <input type="text" class="custom-word-input" id="customWord5" placeholder="목록에 없는 감성 단어 직접 입력..."
+          maxlength="12" onkeydown="if(event.key==='Enter'){addCustomWord5();event.preventDefault();}">
+        <button class="custom-word-btn" onclick="addCustomWord5()">+ 추가</button>
+      </div>
+      <div class="selected-words-row" id="selectedWords5"></div>
+    </div>
+    <hr class="connect-divider">
+
+    <!-- 한 문장 연결 -->
+    <div class="connect-q">감각 · 색 · 감성을 연결하는 나만의 한 문장</div>
+    <div class="connect-sub">아래 예시를 참고해도 좋아요. 내 언어로 자유롭게 써보세요.</div>
+    <div class="connect-example">
+      💬 예시<br>
+      "안개가 걷히는 새벽 바다의 회청색을 보니, 마음 깊은 곳이 고요해지는 느낌이 들었다."<br>
+      "파도 소리와 함께 눈에 들어온 은빛 물결이 설레는 마음을 불러일으켰다."
+    </div>
+    <textarea class="connect-textarea" id="connectSentence"
+      placeholder="나의 한 문장을 써보세요..."></textarea>
+  </div>
+
+  <div class="action-row">
+    <button class="btn btn-outline" onclick="doSave3()" id="saveBtn3">💾 이미지로 저장하기</button>
+  </div>
+  <div class="next-note">
+    💡 오늘 찾은 <strong>감정색</strong>과 <strong>한 문장</strong>은 <strong>4차시 색채 팔레트 만들기</strong>로 이어집니다.
+    저장한 파일을 구글 클래스룸에 올려두세요!
+  </div>
+  <div class="nav-btns">
+    <button class="nav-btn nav-btn-prev" onclick="goToStep(3)">← 이전</button>
+    <button class="nav-btn nav-btn-next" disabled>완료 ✓</button>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<!-- 인쇄/저장 시트 -->
+<div id="printSheet"></div>
+
+<script>
+// ── 춘사 데이터 ──────────────────────────────────────
+const VERSES = [
+  { num:'춘사 1수', ko:'앞 강에 안개 걷고\n뒷 산에 해 비친다\n배 띄워라 배 띄워라\n썰물은 거의 지고 밀물이 밀려온다\n지국총 지국총 어사와\n강촌 온갖 꽃이 먼 빛에 고와라', modern:'강 앞으로 안개가 걷히고 뒷산에 햇살이 내려앉는다. 조수가 바뀌는 아침, 강촌의 꽃들이 먼 빛 속에 곱게 피어 있다.' },
+  { num:'춘사 2수', ko:'연잎에 밥 싸 들고\n반찬으로 게 잡아라\n이어라 이어라\n가랑비에 도롱이는 젖는지 안 젖는지\n지국총 지국총 어사와\n낚싯대를 들쳐 메고 낚시터로 가자꾸나', modern:'연잎에 밥을 싸고 게를 반찬 삼아 도롱이를 두른 채 가랑비 속을 걸어 낚시터로 향한다.' },
+  { num:'춘사 3수', ko:'동풍이 건듯 불어\n물결이 고이 인다\n돛 달아라 돛 달아라\n동호를 돌아보니 서호가 더 좋구나\n지국총 지국총 어사와\n앞산이 지나가고 뒷산이 나타난다', modern:'봄바람이 살짝 불어 잔물결이 인다. 배를 저어가며 동호를 돌아보니 서호가 더 아름답고, 산들이 차례로 펼쳐진다.' },
+  { num:'춘사 4수', ko:'우는 것이 뻐꾸기냐\n푸른 것이 버들 숲이냐\n이어라 이어라\n어촌 두세 집에 석양이 비껴 있다\n지국총 지국총 어사와\n멀리서 피리 소리도 흥겹기만 하다', modern:'뻐꾸기 울음소리와 푸른 버드나무 숲, 석양에 물든 어촌, 멀리서 들려오는 피리 소리가 봄날의 흥겨움을 더한다.' },
+  { num:'춘사 5수', ko:'물가에 외로운 솔\n혼자 어이 서 있는고\n닻 내려라 닻 내려라\n구름이 걷히니 산빛이 새롭구나\n지국총 지국총 어사와\n산 아래 물 위가 어디서 끝나랴', modern:'물가에 홀로 서 있는 소나무를 바라본다. 구름이 걷히자 산빛이 새로워지고, 산과 물이 끝없이 펼쳐진다.' },
+  { num:'춘사 6수', ko:'팔을 베고 누워 있으니\n물소리 풀빛이로다\n이어라 이어라\n바람은 건들건들 물결은 출렁출렁\n지국총 지국총 어사와\n이 맛을 잊지 말고 세상 시름 잊어버려라', modern:'팔을 베고 누워 물소리 풀빛에 잠겨 있다. 바람과 물결이 어우러지는 이 맛 속에서 세상 걱정을 잊는다.' },
+  { num:'춘사 7수', ko:'삿갓에 도롱이 입고\n세우 중에 호미 메고\n닻 내려라 닻 내려라\n선인들 어디어디 가는지 알 수 없고\n지국총 지국총 어사와\n비 갠 하늘에 석양이 비끼었다', modern:'삿갓에 도롱이를 두르고 가랑비 속에 호미를 메고 일한다. 비 갠 하늘에 석양이 기울고 신선들이 사라진 자리가 비어 있다.' },
+  { num:'춘사 8수', ko:'낚시하는 저 늙은이\n고기 낚지 않는구나\n이어라 이어라\n무심한 갈매기야 내 벗인가 아닌가\n지국총 지국총 어사와\n아무도 모르는 자연에서 나 혼자 즐기노라', modern:'낚시하는 어부는 고기를 낚는 것이 목적이 아니다. 갈매기도 벗인지 아닌지 알 수 없고, 자연 속에 홀로 이 즐거움을 누린다.' },
+  { num:'춘사 9수', ko:'파도 소리 자고 나니\n해 돋을 무렵이로다\n배 매어라 배 매어라\n모든 것 다 잊으니 마음이 한가하다\n지국총 지국총 어사와\n만승도 부럽지 않으니 내 삶이 즐겁도다', modern:'파도가 잠든 새벽, 해가 막 돋아오른다. 모든 것을 잊으니 마음이 한가롭고, 임금의 자리도 부럽지 않다.' },
+  { num:'춘사 10수', ko:'물 위에 달이 밝고\n강가에 봄이 깊다\n이어라 이어라\n하늘과 땅 사이에 내 한 몸이 한가하다\n지국총 지국총 어사와\n이 몸 이 한가함이 임금의 은혜로다', modern:'물 위에 달이 밝고 강가에 봄이 깊어간다. 하늘과 땅 사이 자연 속에 홀로 한가로이 있으니, 이 모든 것이 감사하다.' },
+];
+
+// ── 감성 단어 (간략 버전 — 5단계용) ─────────────────
+const MINI_WORDS = [
+  { title:'🌊 자연', words:['고요한','맑은','싱그러운','서늘한','따뜻한','포근한','넓은','깊은'] },
+  { title:'💚 마음', words:['평화로운','편안한','설레는','자유로운','뭉클한','충만한','두근거리는','안도하는'] },
+  { title:'✨ 빛', words:['신비로운','은은한','눈부신','아늑한','쓸쓸한','황홀한','부드러운','반짝이는'] },
+  { title:'💭 기억', words:['그리운','나른한','사색적인','익숙한','묵직한','가벼운','낯선','선명한'] },
+];
+
+// ── 상태 ──────────────────────────────────────────────
+let st = {
+  step: 0,
+  selectedVerse: null,
+  photoSrc: null,
+  photoColors: [],
+  chosenColorIdx: null,
+  chosenColorName: '',
+  senseVision: '', senseSound: '', senseFeel: '',
+  selectedWords: [],
+  connectSentence: '',
+};
+
+// ── 춘사 구절 렌더 ───────────────────────────────────
+function renderVerses() {
+  const el = document.getElementById('verseGrid');
+  el.innerHTML = VERSES.map((v,i) => `
+    <div class="verse-card ${st.selectedVerse===i?'selected':''}" onclick="selectVerse(${i})">
+      <div class="verse-check">${st.selectedVerse===i?'✓':''}</div>
+      <div class="verse-num">${v.num}</div>
+      <div class="verse-ko">${v.ko.replace(/\n/g,'<br>')}</div>
+      <div class="verse-modern">${v.modern}</div>
+    </div>
+  `).join('');
+}
+
+function selectVerse(i) {
+  st.selectedVerse = i;
+  renderVerses();
+}
+
+// ── 선택 구절 배너 ────────────────────────────────────
+function renderVerseBanner(elId) {
+  const el = document.getElementById(elId);
+  if(!el) return;
+  if(st.selectedVerse === null) { el.innerHTML=''; return; }
+  const v = VERSES[st.selectedVerse];
+  el.innerHTML = `
+    <div class="selected-verse-banner">
+      <div class="banner-label">내가 고른 구절 · ${v.num}</div>
+      <div class="banner-verse">${v.ko.replace(/\n/g,' &nbsp;·&nbsp; ')}</div>
+      <div class="banner-modern">${v.modern}</div>
+    </div>
+  `;
+}
+
+// ── 사진 처리 ─────────────────────────────────────────
+function handlePhoto(e) {
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    st.photoSrc = ev.target.result;
+    const img = new Image();
+    img.onload = () => {
+      st.photoColors = extractColors(img, 6);
+      updatePhotoUI();
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function updatePhotoUI() {
+  const zone = document.getElementById('photoZone');
+  const area = document.getElementById('photoUploadArea');
+  if(st.photoSrc) {
+    zone.style.cursor = 'default';
+    zone.innerHTML = `
+      <img src="${st.photoSrc}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+      <div style="position:absolute;bottom:12px;right:12px;z-index:5;display:flex;gap:6px;">
+        <button onclick="document.getElementById('photoCameraInput2').click()"
+          style="padding:5px 13px;background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:16px;
+                 font-size:10px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">
+          📷 다시 찍기
+        </button>
+        <button onclick="document.getElementById('photoFileInput2').click()"
+          style="padding:5px 13px;background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:16px;
+                 font-size:10px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">
+          🖼 파일 바꾸기
+        </button>
+      </div>
+      <input type="file" accept="image/*" capture="environment" style="display:none;" id="photoCameraInput2" onchange="handlePhoto(event)">
+      <input type="file" accept="image/*" style="display:none;" id="photoFileInput2" onchange="handlePhoto(event)">
+    `;
+    area.classList.add('has-photo');
+  }
+  // Step 3 썸네일
+  const t2 = document.getElementById('photoThumb2');
+  if(t2 && st.photoSrc) {
+    t2.innerHTML = `<img src="${st.photoSrc}" style="width:100%;max-height:160px;object-fit:cover;border-radius:8px;border:1px solid var(--sand-dark);">`;
+  }
+}
+
+// ── 색 추출 ───────────────────────────────────────────
+function extractColors(img, count=6) {
+  // 더 큰 캔버스로 정확도 향상
+  const canvas = document.createElement('canvas');
+  const size = 120; canvas.width = size; canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0, size, size);
+  const data = ctx.getImageData(0, 0, size, size).data;
+
+  // 1단계: 세밀한 양자화(16단계) — 미묘한 색 차이 보존
+  const buckets = {};
+  for (let i = 0; i < data.length; i += 4) {
+    const a = data[i + 3];
+    if (a < 128) continue; // 투명 픽셀 제외
+    // 16단계 양자화: 256/16=16 간격
+    const r = Math.round(data[i]     / 16) * 16;
+    const g = Math.round(data[i + 1] / 16) * 16;
+    const b = Math.round(data[i + 2] / 16) * 16;
+    const key = `${r},${g},${b}`;
+    buckets[key] = (buckets[key] || 0) + 1;
+  }
+
+  // 2단계: 빈도 순 정렬
+  const sorted = Object.entries(buckets)
+    .sort((a, b) => b[1] - a[1])
+    .map(([k]) => {
+      const [r, g, b] = k.split(',').map(Number);
+      return { r, g, b };
+    });
+
+  // 3단계: 색 다양성 보장 — 이미 선택된 색과 너무 가까우면 건너뜀
+  const result = [];
+  const minDist = 60; // RGB 거리 임계값 (낮을수록 비슷한 색도 허용)
+
+  for (const c of sorted) {
+    if (result.length >= count) break;
+    const tooClose = result.some(r => {
+      const dr = c.r - r.r, dg = c.g - r.g, db = c.b - r.b;
+      return Math.sqrt(dr*dr + dg*dg + db*db) < minDist;
+    });
+    if (!tooClose) result.push(c);
+  }
+
+  // 4단계: count 개수 못 채웠으면 임계값 낮춰서 추가
+  if (result.length < count) {
+    for (const c of sorted) {
+      if (result.length >= count) break;
+      if (!result.includes(c)) result.push(c);
+    }
+  }
+
+  return result.map(({ r, g, b }) =>
+    `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`
+  );
+}
+
+// ── Step 4 색 렌더 ────────────────────────────────────
+function renderExtractedColors() {
+  const el = document.getElementById('extractedColors');
+  const noMsg = document.getElementById('noPhotoMsg');
+  if(!el) return;
+  if(!st.photoSrc || st.photoColors.length===0) {
+    if(noMsg) noMsg.style.display='block';
+    el.innerHTML=''; return;
+  }
+  if(noMsg) noMsg.style.display='none';
+  el.innerHTML = `
+    <div style="font-size:11px;color:#7a9a88;margin-bottom:10px;">
+      내 사진에서 추출된 색이에요. 지금 내 마음과 가장 닮은 색 하나를 골라보세요.
+    </div>
+    <div class="extracted-strip">
+      ${st.photoColors.map((c,i)=>`
+        <div class="extracted-cell ${st.chosenColorIdx===i?'chosen':''}"
+          style="background:${c}" title="${c}"
+          onclick="chooseColor(${i})"></div>
+      `).join('')}
+    </div>
+    <div class="color-name-area" ${st.chosenColorIdx===null?'style="display:none;"':''} id="colorNameArea">
+      <div class="chosen-color-preview">
+        <div class="chosen-swatch" id="chosenSwatch"
+          style="background:${st.chosenColorIdx!==null?st.photoColors[st.chosenColorIdx]:'#eee'}"></div>
+        <div class="chosen-info">
+          <div class="chosen-label">이 색에 나만의 이름을 붙여보세요</div>
+          <input class="chosen-name-input" type="text" id="colorNameInput"
+            placeholder="예: 새벽 안개 색, 봄 햇살 색..."
+            value="${st.chosenColorName}"
+            oninput="st.chosenColorName=this.value">
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function chooseColor(i) {
+  st.chosenColorIdx = i;
+  renderExtractedColors();
+  document.getElementById('colorNameArea').style.display='block';
+}
+
+// ── Step 5 감성 단어 ──────────────────────────────────
+function renderMiniCategories() {
+  const el = document.getElementById('miniCategories');
+  if(!el) return;
+  el.innerHTML = MINI_WORDS.map(cat=>`
+    <div style="margin-bottom:8px;">
+      <div class="mini-cat-title">${cat.title}</div>
+      <div class="mini-chips">
+        ${cat.words.map(w=>`
+          <div class="mini-chip ${st.selectedWords.includes(w)?'selected':''}"
+            onclick="toggleWord5('${w}')">${w}</div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+  renderSelectedWords5();
+}
+
+function toggleWord5(w) {
+  const idx=st.selectedWords.indexOf(w);
+  if(idx===-1){ if(st.selectedWords.length<3) st.selectedWords.push(w); }
+  else st.selectedWords.splice(idx,1);
+  renderMiniCategories();
+}
+
+function addCustomWord5() {
+  const input=document.getElementById('customWord5');
+  if(!input) return;
+  const w=input.value.trim();
+  if(!w||st.selectedWords.includes(w)) { input.value=''; return; }
+  if(st.selectedWords.length>=3) return;
+  st.selectedWords.push(w);
+  input.value='';
+  renderMiniCategories();
+}
+
+function renderSelectedWords5() {
+  const el=document.getElementById('selectedWords5');
+  if(!el) return;
+  if(st.selectedWords.length===0){
+    el.innerHTML='<span style="font-size:11px;color:#bbb;">아직 선택 없음 (최대 3개)</span>';
+    return;
+  }
+  el.innerHTML=st.selectedWords.map(w=>`
+    <div class="sel-word-chip">${w}<span class="rm" onclick="toggleWord5('${w}')">✕</span></div>
+  `).join('');
+}
+
+// ── Step 5 요약 렌더 ──────────────────────────────────
+function renderConnectSummary() {
+  const el=document.getElementById('connectSummary');
+  if(!el) return;
+  const v = st.selectedVerse!==null ? VERSES[st.selectedVerse] : null;
+  const color = st.chosenColorIdx!==null ? st.photoColors[st.chosenColorIdx] : null;
+  el.innerHTML = `
+    <div class="cs-label">고른 구절</div>
+    <div class="cs-value" style="font-family:'Noto Serif KR',serif;font-size:13px;color:var(--sea-deep);">
+      ${v ? `${v.num} — "${v.ko.split('\n')[0]}"` : '—'}
+    </div>
+    <div class="cs-label">감각 기록</div>
+    <div class="cs-value">
+      ${[st.senseVision,st.senseSound,st.senseFeel].filter(Boolean).join(' · ') || '—'}
+    </div>
+    <div class="cs-label">나의 감정색</div>
+    <div class="cs-value">
+      <div class="cs-color-row">
+        ${color ? `<div class="cs-swatch" style="background:${color}"></div>` : ''}
+        <span>${st.chosenColorName || (color ? color : '—')}</span>
+      </div>
+    </div>
+  `;
+}
+
+// ── 저장 ─────────────────────────────────────────────
+function doSave3() {
+  const btn=document.getElementById('saveBtn3');
+  btn.textContent='⏳ 저장 중...'; btn.disabled=true;
+  buildPrintSheet3();
+  const sheet=document.getElementById('printSheet');
+  sheet.style.display='block';
+  sheet.style.position='fixed';
+  sheet.style.top='-9999px';
+  sheet.style.left='0';
+  sheet.style.width='794px';
+  document.fonts.ready.then(()=>{
+    html2canvas(sheet,{scale:2,useCORS:true,allowTaint:true,backgroundColor:'#ffffff',width:794,windowWidth:794})
+    .then(canvas=>{
+      sheet.style.display='none';
+      const link=document.createElement('a');
+      link.download=`감성연결_3차시.png`;
+      link.href=canvas.toDataURL('image/png');
+      link.click();
+      btn.textContent='✓ 저장 완료!';
+      btn.style.borderColor='#5a8a5a'; btn.style.color='#3a6a3a';
+      setTimeout(()=>{btn.textContent='💾 이미지로 저장하기';btn.style.borderColor='';btn.style.color='';btn.disabled=false;},2500);
+    }).catch(()=>{
+      sheet.style.display='none';
+      btn.textContent='💾 이미지로 저장하기'; btn.disabled=false;
+      alert('저장 중 오류가 발생했어요. 다시 시도해보세요.');
+    });
+  });
+}
+
+function buildPrintSheet3() {
+  const v = st.selectedVerse!==null ? VERSES[st.selectedVerse] : null;
+  const color = st.chosenColorIdx!==null ? st.photoColors[st.chosenColorIdx] : null;
+  const sentence = document.getElementById('connectSentence')?.value || '';
+
+  document.getElementById('printSheet').innerHTML = `
+  <div style="border-bottom:2px solid #1a3a4a;padding-bottom:7px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:flex-end;">
+    <div>
+      <div style="font-size:8px;letter-spacing:2px;color:#5a8a5a;text-transform:uppercase;margin-bottom:3px;">H.E.A.L. 프로젝트 · 1영역 · 3차시</div>
+      <div style="font-family:'Noto Serif KR',serif;font-size:20px;color:#1a3a4a;font-weight:400;">자연과 나의 감성 연결</div>
+      <div style="font-size:10px;color:#6a7a6a;margin-top:2px;">E — 색으로 나를 읽다 · 미술 2단원</div>
+    </div>
+    <div style="display:flex;gap:8px;font-size:9px;">
+      <span style="background:#e8f0e8;border-radius:3px;padding:2px 6px;font-weight:700;color:#3a6a4a;">이름</span>
+      <span style="border-bottom:1px solid #aaa;min-width:70px;display:inline-block;"></span>
+      <span style="background:#e8f0e8;border-radius:3px;padding:2px 6px;font-weight:700;color:#3a6a4a;">날짜</span>
+      <span style="border-bottom:1px solid #aaa;min-width:60px;display:inline-block;"></span>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+    <!-- 왼쪽: 구절 + 사진 -->
+    <div>
+      <div style="font-size:8px;letter-spacing:1.5px;color:#5a8a5a;font-weight:700;text-transform:uppercase;margin-bottom:5px;">Step 1 · 내가 고른 구절</div>
+      <div style="background:linear-gradient(135deg,#1a3a4a,#2a6a5a);border-radius:8px;padding:12px 14px;margin-bottom:10px;">
+        <div style="font-size:8px;color:#7acaaa;margin-bottom:5px;">${v?v.num:''}</div>
+        <div style="font-family:'Noto Serif KR',serif;font-size:12px;color:#fff;line-height:1.9;">${v?v.ko.replace(/\n/g,'<br>'):''}</div>
+        <div style="font-size:9px;color:#9ad4c4;margin-top:6px;border-top:1px solid rgba(255,255,255,0.15);padding-top:6px;">${v?v.modern:''}</div>
+      </div>
+      <div style="font-size:8px;letter-spacing:1.5px;color:#5a8a5a;font-weight:700;text-transform:uppercase;margin-bottom:5px;">Step 2 · 내가 찍은 사진</div>
+      ${st.photoSrc
+        ? `<img src="${st.photoSrc}" style="width:100%;height:130px;object-fit:cover;border-radius:8px;border:1px solid #c8d8c0;">`
+        : `<div style="width:100%;height:130px;background:#f0f5ee;border-radius:8px;border:1px dashed #c8d8b8;display:flex;align-items:center;justify-content:center;font-size:10px;color:#aaa;">사진 없음</div>`}
+    </div>
+    <!-- 오른쪽: 감각 기록 -->
+    <div>
+      <div style="font-size:8px;letter-spacing:1.5px;color:#5a8a5a;font-weight:700;text-transform:uppercase;margin-bottom:5px;">Step 3 · 감각 기록</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="border:1px solid #c8d8c0;border-radius:6px;padding:8px 10px;background:#f5f8f3;">
+          <div style="font-size:9px;font-weight:700;color:#1a3a4a;margin-bottom:4px;">👁️ 보이는 것</div>
+          <div style="font-size:10px;color:#2a3a2a;min-height:24px;">${st.senseVision||'—'}</div>
+        </div>
+        <div style="border:1px solid #c8d8c0;border-radius:6px;padding:8px 10px;background:#f5f8f3;">
+          <div style="font-size:9px;font-weight:700;color:#1a3a4a;margin-bottom:4px;">👂 들리는 것</div>
+          <div style="font-size:10px;color:#2a3a2a;min-height:24px;">${st.senseSound||'—'}</div>
+        </div>
+        <div style="border:1px solid #c8d8c0;border-radius:6px;padding:8px 10px;background:#f5f8f3;">
+          <div style="font-size:9px;font-weight:700;color:#1a3a4a;margin-bottom:4px;">🫧 느껴지는 것</div>
+          <div style="font-size:10px;color:#2a3a2a;min-height:24px;">${st.senseFeel||'—'}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 감정색 + 연결 문장 -->
+  <div style="border:1.5px solid #3a5a3a;border-radius:8px;padding:12px 14px;background:#f0f5ee;margin-bottom:10px;">
+    <div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:10px;">
+      <div style="flex:1;">
+        <div style="font-size:8px;letter-spacing:1.5px;color:#5a8a5a;font-weight:700;text-transform:uppercase;margin-bottom:6px;">Step 4 · 나의 감정색</div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          ${color
+            ? `<div style="width:48px;height:48px;border-radius:8px;background:${color};border:1px solid rgba(0,0,0,0.1);flex-shrink:0;"></div>`
+            : `<div style="width:48px;height:48px;border-radius:8px;background:#eee;border:1px dashed #ccc;flex-shrink:0;"></div>`}
+          <div>
+            <div style="font-family:'Noto Serif KR',serif;font-size:14px;color:#1a3a4a;">${st.chosenColorName||'—'}</div>
+            <div style="font-size:9px;color:#8a9a88;margin-top:2px;">${color||''}</div>
+          </div>
+        </div>
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:8px;letter-spacing:1.5px;color:#5a8a5a;font-weight:700;text-transform:uppercase;margin-bottom:6px;">Step 5 · 감성 단어</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;">
+          ${st.selectedWords.map(w=>`<span style="background:#1a3a4a;color:#fff;border-radius:12px;padding:3px 10px;font-size:11px;">${w}</span>`).join('')||'<span style="font-size:10px;color:#bbb;">—</span>'}
+        </div>
+      </div>
+    </div>
+    <div style="border-top:1px dashed #a0c0a0;padding-top:10px;">
+      <div style="font-size:8px;letter-spacing:1.5px;color:#5a8a5a;font-weight:700;text-transform:uppercase;margin-bottom:6px;">나의 한 문장</div>
+      <div style="font-family:'Noto Serif KR',serif;font-size:13px;color:#1a3a4a;line-height:1.8;font-style:italic;">${sentence||'—'}</div>
+    </div>
+  </div>
+
+  <div style="border-top:1px solid #c8d8b8;padding-top:7px;display:flex;justify-content:space-between;align-items:flex-start;">
+    <div>
+      <div style="font-size:7.5px;font-weight:700;color:#5a8a5a;letter-spacing:1px;margin-bottom:2px;">성취기준</div>
+      <div style="font-size:7.5px;color:#8a9a8a;line-height:1.6;">
+        [6미01-01] 다양한 감각과 매체를 활용하여 자신과 대상을 탐색할 수 있다.<br>
+        [6미01-02] 자신이나 주변 환경에서 찾은 감각적 특징, 느낌, 생각 등을 관련지어 나타낼 수 있다.
+      </div>
+    </div>
+    <div style="font-size:7.5px;color:#4a7a5a;background:#e0ecd8;border-radius:3px;padding:2px 7px;white-space:nowrap;">평가요소 : 감각적 탐색 및 감성 표현</div>
+  </div>
+  `;
+}
+
+// ── 단계 이동 ─────────────────────────────────────────
+function goToStep(n) {
+  st.step=n;
+  document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('active',i===n));
+  document.querySelectorAll('.step-tab').forEach((t,i)=>t.classList.toggle('active',i===n));
+  renderStepDots();
+
+  if(n===0) renderVerses();
+  if(n===1) { renderVerseBanner('selectedVerseBanner1'); updatePhotoUI(); }
+  if(n===2) { renderVerseBanner('selectedVerseBanner2'); updatePhotoUI();
+    st.senseVision=document.getElementById('senseVision')?.value||'';
+    st.senseSound=document.getElementById('senseSound')?.value||'';
+    st.senseFeel=document.getElementById('senseFeel')?.value||'';
+  }
+  if(n===3) {
+    st.senseVision=document.getElementById('senseVision')?.value||st.senseVision;
+    st.senseSound=document.getElementById('senseSound')?.value||st.senseSound;
+    st.senseFeel=document.getElementById('senseFeel')?.value||st.senseFeel;
+    renderExtractedColors();
+  }
+  if(n===4) {
+    st.chosenColorName=document.getElementById('colorNameInput')?.value||st.chosenColorName;
+    renderConnectSummary();
+    renderMiniCategories();
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderStepDots() {
+  document.getElementById('stepDots').innerHTML=[0,1,2,3,4].map(i=>
+    `<div class="step-dot ${i===st.step?'active':i<st.step?'done':''}"></div>`
+  ).join('');
+}
+
+// 초기화
+renderVerses();
+renderStepDots();
+</script>
+</body>
+</html>
